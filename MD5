@@ -1,0 +1,17 @@
+fabddf251607b349c504236c024c1e5e *DESCRIPTION
+35c19c317e141a5fdf89ea1f318c46c9 *NAMESPACE
+0a45713d5dfdc6cccc37962fca826da5 *R/AFTER.R
+7b1199c91d6253ef041b89e3feb93c6a *R/Boost_weight.R
+d48dc6111b2e2b8cb37cc8c2249886e6 *R/boosting.R
+e7997a0246430ae5ae6c6adc6ce2f867 *R/data_generation.R
+287321304ce26d754ce112942d8248b2 *R/f1.R
+dc6f538ae5a4f79f9bf2cc254ae005e9 *R/f2.R
+0c277b2c14de0abbe4dc814d6bdd277c *R/f3.R
+5453221c42c2b4f9f86b76a3d891fd61 *R/f4.R
+1ea5fb507968ea1fb40a68b2eb6560e6 *R/matrix_value.R
+ecaa985858140a5ad40e2e0bbe2f58ef *R/measurement_error_correction.R
+23116452fb18a1b5155a539898504278 *R/riemann_interval.R
+be3fd21a648e8ef34cb4432d6dc8f17a *man/AFFECCT.Rd
+0d2aa59b7386fac7cc4a9ff8425f1173 *man/Boosting.Rd
+73a26845dadb1c299167dc8536a32106 *man/ME_correction.Rd
+2985950decfb84c9fffb9b5a83a1b10f *man/data_gen.Rd
