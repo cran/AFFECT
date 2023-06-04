@@ -40,7 +40,6 @@ gamma1=b, e_var=0.75)
 ## in the classical additive measurement error model is 1 and
 ## Misclassifcation probability = 0.9.
 
-
 matrixb <- diag(6)
 gamma_0 <-  1
 gamma_1 <- matrix(0,ncol=6, nrow =1)
@@ -52,6 +51,7 @@ indicator=data[,2], covariate = data[,3:8])
 data1 <- cbind(data1,data[,3:8])
 
 ## Data in boosting procedure with iteration times =2
+
 result <- Boosting(data=data1, iter=2)
 
 

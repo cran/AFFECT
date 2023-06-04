@@ -48,7 +48,6 @@
 #'
 #' matrixa <- diag(50)
 #' gamma_0 <-  1 ; gamma_1 <- matrix(0,ncol=50, nrow =1); gamma_1[1,1] <- 1
-#'
 #' corrected_data1 <- ME_correction(pi_10=0.9,pi_01=0.9,gamma0 = gamma_0,
 #' gamma1 = gamma_1,
 #' cor_covar=matrixa, y=data[,1],

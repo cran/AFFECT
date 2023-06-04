@@ -15,4 +15,4 @@
 #' the boosting procedure.
 #' @return No return value, called for side effects.
 #' @export
-AFFECCT <- function(){}
+AFFECT <- function(){}

@@ -45,6 +45,7 @@ function is given by \code{T=f(X1)+f(X2)+f(X3)+f(X4)+error}, where \code{T} is l
 ## Set the relationship between observed survival time
 ## and true survival time equals y*= y+1+X1+v, where the variance is
 ## 0.75 with n=500 and p=50 and misclassification probability=0.9.
+
 a <- matrix(0,ncol=50, nrow = 1); a[1,1] <- 1
 data <- data_gen(n=500, p=50, pi_01=0.9, pi_10 = 0.9, gamma0=1,
 gamma1=a, e_var=0.75)
