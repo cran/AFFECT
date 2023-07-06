@@ -11,9 +11,9 @@
 #' @param pi_10 Misclassifcation probability is P(Observed Censoring Status = 1 | Actual Censoring Status = 0).
 #'
 #' @param gamma0 A scalar that links the observed survival time and true survival time in the classical additive
-#'  measurement error model \code{y*=y+gamma0+gamma1*X+v}, where y*
-#'  is observed survival time and \code{y} is true survival time, and \code{x} is covariates and v is noise term.
-#'
+#'  measurement error model \code{y*=y+gamma0+gamma1*X+v}, where \code{y*}
+#'  is observed survival time and \code{y} is true survival time, and \code{x} is covariates and \code{v} is noise
+#'  term.
 #' @param gamma1 A \code{p}-dimensional vector of parameters in the additive
 #'  measurement error model \code{y*=y+gamma0+gamma1*X+v}, where \code{y*} is observed
 #'   survival time and \code{y} is true survival time, \code{x} is covariates and \code{v} is
@@ -29,7 +29,7 @@
 #'
 #' @param covariate A \code{c(n,p)} matrix of covariates.
 #'
-#' @return A \code{c(n,2)} data frame. This first column is the corrected survival time, and the
+#' @return correction_data A \code{c(n,2)} data frame. This first column is the corrected survival time, and the
 #'second column is the corrected censoring indicator.
 #'
 #' @examples

@@ -24,8 +24,8 @@
 #'  error model \code{y*=y+gamma0+gamma1*X+v}, where \code{v} is assumed to follow a normal
 #'   distribution.
 #'
-#' @return A \code{c(n,p+2)} dimensional data frame. The first column is observed survival time and second
-#'   column is observed censoring status, and the other columns are covariates.
+#' @return generated_data \code{c(n,p+2)} dimensional data frame. The first column is observed survival time and
+#'  second column is observed censoring status, and the other columns are covariates.
 #'
 #' @examples
 #' ## Set the relationship between observed survival time

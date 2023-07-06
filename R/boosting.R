@@ -10,15 +10,17 @@
 #'  \code{p} is the number of covariates. The first column is survival time and second
 #'  column is censoring status, and the other columns are covariates.
 #' @param iter The iteration times of the boosting procedure. The default value = 50 and the iteration will stop
-#' when the absolute value of increment of every estimated value is small than 0.001.
+#' when the absolute value of increment of every estimated value is small than 0.01.
 #'
 #' @importFrom ggplot2  "geom_line" "theme_minimal" "labs"  "aes"
 #' @importFrom ggplot2  "ggplot"
 #' @importFrom stats "lm" "smooth.spline" "fitted"
 #'
-#'
-#' @return A list that contains the first ten covariates that are informative with respect to the failure time
-#'and their corresponding estimated functional curves.
+#' @return covariates The first ten covariates that are selected in the iteration.
+#' @return functional_forms The functional forms of the first ten covariates that are selected
+#' in the iteration.
+#' @return predicted_failure_time The predicted failure time of every sample
+#' @return survival_curve Predicted survival curve of the sample.
 #'
 #' @examples
 #' ## generate data with misclassification = 0.9 with n = 50, p = 6
@@ -53,7 +55,7 @@
 #' @export
 
 
-Boosting <- function(data, iter){
+Boosting <- function(data, iter=50){
   W <- function(r_star,g_x){
     a <- data.frame(r_star); b <- data.frame(g_x)
     data <- cbind(a,b)
@@ -62,40 +64,36 @@ Boosting <- function(data, iter){
     return(w$coefficients)
   }
 
-  interval<- function(lower_bound,upper){
-    interval_size = (5-lower_bound)/6
+  interval<- function(lower_bound,upper_bound){
+    interval_size = (upper_bound-lower_bound)/7
     interval_points <- c(lower_bound)
-    for(i in (1:6)){
+    for(i in (1:7)){
       interval_points <- c(interval_points,lower_bound+interval_size*i)
     }
     return(interval_points)
   }
 
-
-  naive_data <- data
-  colnames(naive_data)[1:2] <- c('Y','censoring_indicator')
-
+  corrected_data<- data
+  colnames(corrected_data)[1:2] <- c('Y','censoring_indicator')
 
 
   # number of sample
-  n = dim(naive_data)[1]
+  n = dim(corrected_data)[1]
   # dimension
-  p = dim(naive_data)[2]-2
+  p = dim(corrected_data)[2]-2
 
 
-
-  censoring_indicator <- naive_data$censoring_indicator
+  censoring_indicator <- corrected_data$censoring_indicator
   variable_catch <- c()
-  y <- naive_data$Y
-  upper <- max(y)+3
+  y <- corrected_data$Y
+
 
   #step 0.
-
   sum_of_every_fitted_value <- rep(0,times=n)
-  y_star <- naive_data$Y
+  y_star <- corrected_data$Y
   r <- y - sum_of_every_fitted_value
   r_star <- y_star - sum_of_every_fitted_value
-  df3 <- data.frame(naive_data$censoring_indicator,r_star,r)
+  df3 <- data.frame(corrected_data$censoring_indicator,r_star,r)
   colnames(df3)[1] <- "censoring_indicator"
   survival_probability <- c()
 
@@ -113,13 +111,13 @@ Boosting <- function(data, iter){
   }
 
 
-
   survival_probability[which(survival_probability==0)] <- 0.000001
 
 
   sum_riemann_for_every_n <- c()
+  upper = max(r)
   for (i in c(1:length(df3$r))){
-    point <- interval(df3$r[i],upper=upper)
+    point <- interval(df3$r[i],upper)
     riemann_x <- c()
     data_producted <- 1
     for (j in c(1:length(point))){
@@ -171,11 +169,6 @@ Boosting <- function(data, iter){
 
 
   while (TRUE) {
-
-    if (iterations == stop_times){
-      break
-    }
-
     r_star <- y_star - sum_of_every_fitted_value
     residual<- c(0)
     add_f <- c()
@@ -183,10 +176,9 @@ Boosting <- function(data, iter){
     variable <- c()
 
 
-
     for (i in c(1:p)){
       times = times + 1
-      f_variables <- smooth.spline(x=naive_data[,i+2],y=r_star,cv=FALSE,all.knots=c(0,0.2,0.4,0.6,0.8,1))
+      f_variables <- smooth.spline(x=corrected_data[,i+2],y=r_star,cv=FALSE,all.knots=c(0,0.2,0.4,0.6,0.8,1))
       if (residual==0){
         add_f <- f_variables
         residual <- f_variables$pen.crit
@@ -202,21 +194,24 @@ Boosting <- function(data, iter){
     variable_catch <- c(variable_catch,variable)
     fit = fitted(add_f)
     fit[which(is.na(fit))]=0
-    w <- W(r_star,fit)
 
+    w <- W(r_star,fit)
     add_g <- as.data.frame(w * fit, ncol = 1)
 
+    stop_value <- 1e-2
+    number_of_added_value <- sum((abs(add_g) < stop_value)*1)
 
-    stop_value <- 1e-3
-    number_of_added_value <- sum((add_g < stop_value)*1)
+    if (iterations == stop_times){
+      break
+    }
 
-
-    if (number_of_added_value != n){
+    if (number_of_added_value != n && iterations!= stop_times){
       df[as.character(variable)] <- df[,variable] + add_g
+
       sum_of_every_fitted_value <- sum_of_every_fitted_value + w * fit
       r_star = y_star - sum_of_every_fitted_value
       r <- y - sum_of_every_fitted_value
-      df1 <- data.frame(naive_data$censoring_indicator,r_star,r)
+      df1 <- data.frame(corrected_data$censoring_indicator,r_star,r)
       colnames(df1)[1] <- "censoring_indicator"
       survival_probability <- c()
 
@@ -236,9 +231,9 @@ Boosting <- function(data, iter){
       survival_probability[which(survival_probability==0)] <- 0.000001
 
       sum_riemann_for_every_n <- c()
-
+      upper = max(r)
       for (i in c(1:length(df1$r))){
-        point <- interval(df1$r[i],upper=upper)
+        point <- interval(df1$r[i],upper)
         riemann_x <- c()
         data_producted <- 1
         for (j in c(1:length(point))){
@@ -283,27 +278,45 @@ Boosting <- function(data, iter){
       break
     }
   }
-  variable_names <- c()
-  for (i in c(1:length(variable_catch ))){
-    variable_names[i] <- colnames(naive_data)[variable_catch[i]+2]
-  }
+
+
+  survival_data<- df
+  predict_failure_time <- apply(survival_data,1,sum)
+  sur_time <-apply(survival_data,1,sum)
+  sur_time <-exp(sur_time)
+  sur_time <-sort(sur_time)
+  sur_time <-data.frame(sur_time)
+  sur_time
+  pro <- seq(1,dim(sur_time)[1])/dim(sur_time)[1]
+  pro <- sort(pro, decreasing= TRUE)
+  pro <- data.frame(pro)
+
+
+  # survival probability
+  ddf1 <- cbind(sur_time, pro)
+  survival_curve <- ggplot(ddf1, aes(x=sur_time,y=pro))+geom_line()+
+    theme_minimal(14)+
+    labs(x="time", y="survival probability", title='survival curve')
   variable_catch <- variable_catch[1:10]
   variable_catch <- as.numeric(names(table(variable_catch)))
+  variable_names <- c()
+  for (i in c(1:length(variable_catch))){
+    variable_names[i] <- colnames(corrected_data)[variable_catch[i]+2]
+  }
+
   pictures <- list()
   for (i in c(1:length(variable_catch))){
-    temp <- as.data.frame(cbind(naive_data[,variable_catch[i]+2],df[,variable_catch[i]]))
+    temp <- as.data.frame(cbind(corrected_data[,variable_catch[i]+2],df[,variable_catch[i]]))
     colnames(temp) <- c('x','y')
     temp  <- temp [order(temp$x),]
     pic <- ggplot(temp, aes(x=x,y=y))+geom_line()+
       theme_minimal(14)+
-      labs(x="x", y="f", title=colnames(naive_data)[variable_catch[i]+2])
+      labs(x="x", y="f", title=colnames(corrected_data)[variable_catch[i]+2])
     pictures[[i]] <- pic
   }
   names(pictures) <- variable_names
-  results <-list(covariates = variable_names, function_forms = pictures)
-  results$covariates
-  x <- c()
+  results <-list(predict_failure_time=predict_failure_time, covariates = variable_names, function_forms = pictures,survival_curve=survival_curve)
+
+  x = c()
   return(results)
-
 }
-

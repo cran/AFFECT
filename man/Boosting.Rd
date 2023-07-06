@@ -4,7 +4,7 @@
 \alias{Boosting}
 \title{Estimation of Functional Forms of Covaraites under AFT Models}
 \usage{
-Boosting(data, iter)
+Boosting(data, iter = 50)
 }
 \arguments{
 \item{data}{A \code{c(n,p+2)} dimension of data, where \code{n} is sample size and
@@ -12,11 +12,17 @@ Boosting(data, iter)
 column is censoring status, and the other columns are covariates.}
 
 \item{iter}{The iteration times of the boosting procedure. The default value = 50 and the iteration will stop
-when the absolute value of increment of every estimated value is small than 0.001.}
+when the absolute value of increment of every estimated value is small than 0.01.}
 }
 \value{
-A list that contains the first ten covariates that are informative with respect to the failure time
-and their corresponding estimated functional curves.
+covariates The first ten covariates that are selected in the iteration.
+
+functional_forms The functional forms of the first ten covariates that are selected
+in the iteration.
+
+predicted_failure_time The predicted failure time of every sample
+
+survival_curve Predicted survival curve of the sample.
 }
 \description{
 The function aims to select informative covariates under the AFT model and estimate their corresponding
